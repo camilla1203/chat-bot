@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mood Support Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-container {
+            width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .input-box {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .sad-button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .sad-button:hover {
+            background-color: #1976D2;
+        }
+        .danger-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .danger-button:hover {
+            background-color: #d32f2f;
+        }
+        .rainbow-text {
+            background-image: linear-gradient(to right, red, orange, yellow, green, cyan, blue, violet);
+            -webkit-background-clip: text;
+            color: transparent;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box"></div>
+        <div class="input-box">
+            <input type="text" id="user-input" placeholder="Scrivi un messaggio..." />
+            <button onclick="sendMessage()">Invia</button>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <button class="sad-button" onclick="window.open('https://www.youtube.com/watch?v=d-diB65scQU', '_blank')">Sono triste</button>
+            <button class="danger-button" onclick="window.open('https://www.telefonoamico.it', '_blank')">Voglio farla finita</button>
+        </div>
+    </div>
+
+    <script>
+        const maleNames = ["Luca", "Marco", "Andrea", "Giovanni", "Matteo"];
+        const femaleNames = ["Giulia", "Sara", "Chiara", "Martina", "Elisa"];
+        let botName = "";
+        let isAyla = false;
+
+        function chooseBotGender(gender) {
+            if (gender === 'male') {
+                botName = maleNames[Math.floor(Math.random() * maleNames.length)];
+            } else if (gender === 'female') {
+                botName = femaleNames[Math.floor(Math.random() * femaleNames.length)];
+            } else if (gender === 'child') {
+                botName = "Ayla";
+                isAyla = true;
+            }
+            displayMessage(`Sistema: Stai parlando con ${isAyla ? '<span class="rainbow-text">' + botName + '</span>' : botName}. Come posso aiutarti?`);
+        }
+
+        function getResponse(message) {
+            if (message.toLowerCase() === 'ciao') {
+                if (isAyla) {
+                    return `<span class="rainbow-text">Ciao! Io sono Ayla, un bot pensato per i bambini! 🌈😊</span>`;
+                } else {
+                    return `${botName}: Ciao! Io sono ${botName}, un bot pensato per gli adulti. Come posso aiutarti oggi? 😊`;
+                }
+            }
+
+            if (isAyla) {
+                return `<span class="rainbow-text">Ayla: Wow, che domanda interessante! Ti voglio tanto bene! 🌈😊</span>`;
+            }
+
+            if (message.includes("?")) {
+                return `${botName}: Bella domanda! Fammi pensare... 🤔`;
+            }
+
+            const mood = detectMood(message.toLowerCase());
+            if (mood === 'positive') {
+                return `${botName}: Sono felice di sentirlo! Continua così! 💖`;
+            } else if (mood === 'negative') {
+                return `${botName}: Mi dispiace sentirlo... Se hai bisogno di parlare, sono qui per te. ❤️`;
+            } else {
+                return `${botName}: Capisco, raccontami di più! 😊`;
+            }
+        }
+
+        function detectMood(message) {
+            const positiveWords = ["felice", "bene", "fantastico", "contento", "ottimo"];
+            const negativeWords = ["triste", "male", "orribile", "giù", "deluso"];
+
+            if (positiveWords.some(word => message.includes(word))) {
+                return 'positive';
+            } else if (negativeWords.some(word => message.includes(word))) {
+                return 'negative';
+            } else {
+                return 'neutral';
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            if (message === '') return;
+
+            displayMessage(`Tu: ${message}`);
+
+            setTimeout(() => {
+                const response = getResponse(message);
+                displayMessage(response);
+            }, 500);
+
+            input.value = '';
+        }
+
+        function displayMessage(message) {
+            const chatBox = document.getElementById('chat-box');
+            const messageElement = document.createElement('div');
+            messageElement.innerHTML = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        setTimeout(() => {
+            const choice = prompt("Vuoi parlare con un bot maschio, femmina o con Ayla (bot per bambini)? Scrivi 'maschio', 'femmina' o 'Ayla'");
+            if (choice.toLowerCase() === 'ayla') {
+                chooseBotGender('child');
+            } else if (choice.toLowerCase() === 'maschio') {
+                chooseBotGender('male');
+            } else {
+                chooseBotGender('female');
+            }
+        }, 500);
+    </script>
+</body>
+</html>
